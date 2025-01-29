@@ -1,6 +1,7 @@
 #include "server.hpp"
 #include "config.hpp"
-#include <thread>
+#include <string>
+#include <iostream>
 
 int main(int argc, char* argv[])
 {
@@ -8,7 +9,16 @@ int main(int argc, char* argv[])
 
 	Server server;
 	server.start();
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	std::string cmd;
+	while (server.running)
+	{
+		std::getline(std::cin, cmd);
+
+		if (cmd == "exit") server.running = false;
+
+		if (std::cin.eof()) server.running = false;
+	}
 
 	return 0;
 }
