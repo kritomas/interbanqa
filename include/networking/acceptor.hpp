@@ -76,13 +76,10 @@ public:
 	/**
 	 * Call in a separate thread.
 	 */
-	void hostV4Thread();
-	/**
-	 * Call in a separate thread.
-	 */
-	void hostV6Thread();
+	void hostThread();
 
 	void hostV4(int port);
 	void hostV6(int port);
+	void host(const std::string& address, int port);
 };
 #endif

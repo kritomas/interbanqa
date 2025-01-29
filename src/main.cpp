@@ -1,37 +1,14 @@
-#include <iostream>
-#include "networking/connection.hpp"
-#include "stringops.hpp"
+#include "server.hpp"
 #include "config.hpp"
+#include <thread>
 
 int main(int argc, char* argv[])
 {
 	initConfig();
 
-	Connection connection;
-	int port = config::PORT;
-	connection.hostV4(port);
-	std::cout << "Running on: " << port << std::endl;
-
-	bool running = true;
-	while (running)
-	{
-		while (connection.pending() > 0)
-		{
-			Packet packet = connection.next();
-
-			auto arguments = parseCommand(packet.data());
-
-			std::cout << "Incoming cmd: " << arguments[0] << std::endl;
-
-			if (arguments[0] == "exit")
-			{
-				connection.send("Server shutting down\r\n", packet.socket());
-				running = false;
-			}
-		}
-	}
-
-	connection.close();
+	Server server;
+	server.start();
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
 	return 0;
 }

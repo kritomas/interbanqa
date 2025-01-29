@@ -30,13 +30,9 @@
 #include "networking/acceptor.hpp"
 #include <thread>
 
-void acceptorV4Thread(Acceptor* acceptor)
+void acceptorThread(Acceptor* acceptor)
 {
-	acceptor->hostV4Thread();
-}
-void acceptorV6Thread(Acceptor* acceptor)
-{
-	acceptor->hostV6Thread();
+	acceptor->hostThread();
 }
 
 Acceptor::Acceptor() : acceptor(ioContext)
@@ -111,43 +107,7 @@ Packet Acceptor::next()
 	return res;
 }
 
-void Acceptor::hostV4Thread()
-{
-	while (accepting)
-	{
-		acceptedSocket.reset(new Socket());
-		try
-		{
-			if (acceptor.is_open())
-			{
-				internalLocker.lock();
-				try
-				{
-					acceptedSocket->accept(acceptor);
-				}
-				catch (...)
-				{
-					internalLocker.unlock();
-					throw;
-				}
-				internalLocker.unlock();
-				acceptorLocker.lock();
-				sockets.emplace_back(acceptedSocket);
-				acceptorLocker.unlock();
-			}
-			else
-			{
-				accepting = false;
-			}
-		}
-		catch (const boost::wrapexcept<boost::system::system_error>& error)
-		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			// Silently ignore
-		}
-	}
-}
-void Acceptor::hostV6Thread()
+void Acceptor::hostThread()
 {
 	while (accepting)
 	{
@@ -195,7 +155,7 @@ void Acceptor::hostV4(int port)
 	acceptor.bind(endpoint);
 	acceptor.listen();
 	acceptor.non_blocking(true);
-	acceptorThread = std::thread(acceptorV4Thread, this);
+	acceptorThread = std::thread(::acceptorThread, this);
 }
 void Acceptor::hostV6(int port)
 {
@@ -207,5 +167,17 @@ void Acceptor::hostV6(int port)
 	acceptor.bind(endpoint);
 	acceptor.listen();
 	acceptor.non_blocking(true);
-	acceptorThread = std::thread(acceptorV6Thread, this);
+	acceptorThread = std::thread(::acceptorThread, this);
+}
+void Acceptor::host(const std::string& address, int port)
+{
+	close();
+	_port = port;
+	accepting = true;
+	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(address), _port);
+	acceptor.open(endpoint.protocol());
+	acceptor.bind(endpoint);
+	acceptor.listen();
+	acceptor.non_blocking(true);
+	acceptorThread = std::thread(::acceptorThread, this);
 }

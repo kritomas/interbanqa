@@ -58,6 +58,7 @@ public:
 
 	void hostV4(int port);
 	void hostV6(int port);
+	void host(const std::string& address, int port);
 	void connectV4(std::string ip, std::string port);
 	void connectV6(std::string ip, std::string port);
 

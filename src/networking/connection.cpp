@@ -86,6 +86,12 @@ void Connection::hostV6(int port)
 	acceptor.reset(new Acceptor);
 	acceptor->hostV6(port);
 }
+void Connection::host(const std::string& address, int port)
+{
+	close();
+	acceptor.reset(new Acceptor);
+	acceptor->host(address, port);
+}
 void Connection::connectV4(std::string ip, std::string port)
 {
 	close();

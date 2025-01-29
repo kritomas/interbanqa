@@ -31,12 +31,9 @@
 #include <string>
 #include <thread>
 
-namespace tcp
+void socketReceiveThread(Socket* socket)
 {
-	void socketReceiveThread(Socket* socket)
-	{
-		socket->receive();
-	}
+	socket->receive();
 }
 
 Socket::~Socket()
@@ -107,7 +104,7 @@ void Socket::start()
 {
 	socket->non_blocking(true);
 	receiving = true;
-	receiveThread = std::thread(::tcp::socketReceiveThread, this);
+	receiveThread = std::thread(socketReceiveThread, this);
 }
 
 bool Socket::isOpen() const
