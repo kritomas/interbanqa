@@ -27,69 +27,25 @@
  *	Source code: https://gitlab.com/kritomas/kritos-game-engine-2d
  */
 
-#ifndef KGE2D_NETWORKING_SOCKET_HPP
-#define KGE2D_NETWORKING_SOCKET_HPP
+#ifndef NETWORKING_PACKET_HPP
+#define NETWORKING_PACKET_HPP
 
 #include "boost/asio.hpp"
-#include "kge2D/networking/packet.hpp"
 
-namespace kge2D
+typedef std::string Buffer;
+class Packet
 {
-	namespace tcp
-	{
-		typedef size_t size_designator;
+private:
+	Buffer packetData;
+	std::shared_ptr<boost::asio::ip::tcp::socket> _socket;
 
-		/**
-		 * An individual TCP socket. Used by Connection.
-		 */
-		class Socket
-		{
-		private:
-			boost::asio::io_context ioContext;
+public:
+	Packet();
+	Packet(const void* data, size_t size, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+	Packet(const Buffer& buffer, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
 
-			std::shared_ptr<boost::asio::ip::tcp::socket> socket;
-
-			std::vector<Packet> incomingPackets;
-			std::mutex incomingLocker;
-			std::mutex internalLocker;
-
-			std::thread receiveThread;
-
-			bool receiving = false;
-
-		public:
-			~Socket();
-
-			void close();
-
-			/**
-			 * Starts the receiving loop. This should be called from a separate thread.
-			 */
-			void receive();
-
-			/**
-			 * Starts the receiving thread.
-			 */
-			void start();
-
-			bool isOpen() const;
-
-			/**
-			 * @return The amount of pending received packets, waiting for processing.
-			 */
-			size_t pending();
-			/**
-			 * @return The next packet to be processed, which is REMOVED FROM THE QUEUE.
-			 */
-			Packet next();
-
-			void accept(boost::asio::ip::tcp::acceptor& acceptor);
-			void connectV4(std::string ip, std::string port);
-			void connectV6(std::string ip, std::string port);
-
-			void send(Buffer buffer);
-		};
-	}
-}
+	Buffer data() const;
+	std::shared_ptr<boost::asio::ip::tcp::socket> socket() const;
+};
 
 #endif

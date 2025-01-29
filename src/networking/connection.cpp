@@ -27,14 +27,14 @@
  *	Source code: https://gitlab.com/kritomas/kritos-game-engine-2d
  */
 
-#include "kge2D/networking/connection.hpp"
+#include "networking/connection.hpp"
 
-kge2D::tcp::Connection::~Connection()
+Connection::~Connection()
 {
 	close();
 }
 
-void kge2D::tcp::Connection::close()
+void Connection::close()
 {
 	if (socket != nullptr)
 	{
@@ -48,7 +48,7 @@ void kge2D::tcp::Connection::close()
 	}
 }
 
-size_t kge2D::tcp::Connection::pending()
+size_t Connection::pending()
 {
 	size_t res = 0;
 	if (socket != nullptr)
@@ -61,7 +61,7 @@ size_t kge2D::tcp::Connection::pending()
 	}
 	return res;
 }
-kge2D::tcp::Packet kge2D::tcp::Connection::next()
+Packet Connection::next()
 {
 	if (socket != nullptr)
 	{
@@ -74,38 +74,36 @@ kge2D::tcp::Packet kge2D::tcp::Connection::next()
 	throw std::runtime_error("error");
 }
 
-void kge2D::tcp::Connection::hostV4(int port)
+void Connection::hostV4(int port)
 {
 	close();
 	acceptor.reset(new Acceptor);
 	acceptor->hostV4(port);
 }
-void kge2D::tcp::Connection::hostV6(int port)
+void Connection::hostV6(int port)
 {
 	close();
 	acceptor.reset(new Acceptor);
 	acceptor->hostV6(port);
 }
-void kge2D::tcp::Connection::connectV4(std::string ip, std::string port)
+void Connection::connectV4(std::string ip, std::string port)
 {
 	close();
 	socket.reset(new Socket);
 	socket->connectV4(ip, port);
 }
-void kge2D::tcp::Connection::connectV6(std::string ip, std::string port)
+void Connection::connectV6(std::string ip, std::string port)
 {
 	close();
 	socket.reset(new Socket);
 	socket->connectV6(ip, port);
 }
 
-void kge2D::tcp::Connection::send(Buffer buffer, std::shared_ptr<boost::asio::ip::tcp::socket> socket)
+void Connection::send(Buffer buffer, std::shared_ptr<boost::asio::ip::tcp::socket> socket)
 {
-	size_designator outgoingSize = buffer.size();
-	socket->send(boost::asio::buffer(&outgoingSize, sizeof(outgoingSize)));
 	socket->send(boost::asio::buffer(buffer.data(), buffer.size()));
 }
-void kge2D::tcp::Connection::send(Buffer buffer)
+void Connection::send(Buffer buffer)
 {
 	socket->send(buffer);
 }

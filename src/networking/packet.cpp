@@ -27,69 +27,24 @@
  *	Source code: https://gitlab.com/kritomas/kritos-game-engine-2d
  */
 
-#ifndef KGE2D_NETWORKING_ACCEPTOR_HPP
-#define KGE2D_NETWORKING_ACCEPTOR_HPP
+#include "networking/packet.hpp"
 
-#include "kge2D/networking/socket.hpp"
-
-namespace kge2D
+Packet::Packet(const void* data, size_t size, std::shared_ptr<boost::asio::ip::tcp::socket> socket)
 {
-	namespace tcp
-	{
-		class Acceptor
-		{
-		private:
-			boost::asio::io_context ioContext;
-			int _port = 0;
-
-			bool accepting = false;
-
-			boost::asio::ip::tcp::acceptor acceptor;
-			std::vector<std::shared_ptr<Socket>> sockets;
-			std::shared_ptr<Socket> acceptedSocket = nullptr;
-
-			std::vector<Packet> incomingPackets;
-			std::mutex acceptorLocker;
-			std::mutex internalLocker;
-
-			std::thread acceptorThread;
-
-		public:
-			Acceptor();
-
-			~Acceptor();
-
-			void close();
-
-			int port() const;
-
-			/**
-			 * Loads the incoming packets form all accepted connections into the queue accessible from next().
-			 */
-			void update();
-
-			/**
-			 * @return The amount of pending received packets, waiting for processing.
-			 */
-			size_t pending();
-			/**
-			 * @return The next packet to be processed, which is REMOVED FROM THE QUEUE.
-			 */
-			Packet next();
-
-			/**
-			 * Call in a separate thread.
-			 */
-			void hostV4Thread();
-			/**
-			 * Call in a separate thread.
-			 */
-			void hostV6Thread();
-
-			void hostV4(int port);
-			void hostV6(int port);
-		};
-	}
+	packetData.assign((char*)data, size);
+	_socket = socket;
+}
+Packet::Packet(const Buffer& other, std::shared_ptr<boost::asio::ip::tcp::socket> socket)
+{
+	packetData = other;
+	_socket = socket;
 }
 
-#endif
+Buffer Packet::data() const
+{
+	return packetData;
+}
+std::shared_ptr<boost::asio::ip::tcp::socket> Packet::socket() const
+{
+	return _socket;
+}

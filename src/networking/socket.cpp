@@ -27,24 +27,32 @@
  *	Source code: https://gitlab.com/kritomas/kritos-game-engine-2d
  */
 
-#include "kge2D/networking/socket.hpp"
+#include "networking/socket.hpp"
 #include <string>
 #include <thread>
 
+std::string trim(const std::string& str)
+{
+	size_t first = str.find_first_not_of(" \t\n\r\f\v");
+	if (first == std::string::npos) return "";
+	size_t last = str.find_last_not_of(" \t\n\r\f\v");
+	return str.substr(first, (last - first + 1));
+}
+
 namespace tcp
 {
-	void socketReceiveThread(kge2D::tcp::Socket* socket)
+	void socketReceiveThread(Socket* socket)
 	{
 		socket->receive();
 	}
 }
 
-kge2D::tcp::Socket::~Socket()
+Socket::~Socket()
 {
 	close();
 }
 
-void kge2D::tcp::Socket::close()
+void Socket::close()
 {
 	receiving = false;
 	if (socket != nullptr)
@@ -59,7 +67,7 @@ void kge2D::tcp::Socket::close()
 	}
 	internalLocker.unlock();
 }
-void kge2D::tcp::Socket::receive()
+void Socket::receive()
 {
 	Buffer receiveBuffer;
 
@@ -85,7 +93,7 @@ void kge2D::tcp::Socket::receive()
 				}
 				internalLocker.unlock();
 
-				Packet incomingPacket(receiveBuffer, socket);
+				Packet incomingPacket(trim(receiveBuffer), socket);
 				incomingLocker.lock();
 				incomingPackets.push_back(incomingPacket);
 				incomingLocker.unlock();
@@ -103,26 +111,26 @@ void kge2D::tcp::Socket::receive()
 	}
 }
 
-void kge2D::tcp::Socket::start()
+void Socket::start()
 {
 	socket->non_blocking(true);
 	receiving = true;
 	receiveThread = std::thread(::tcp::socketReceiveThread, this);
 }
 
-bool kge2D::tcp::Socket::isOpen() const
+bool Socket::isOpen() const
 {
 	return (socket != nullptr && socket->is_open());
 }
 
-size_t kge2D::tcp::Socket::pending()
+size_t Socket::pending()
 {
 	incomingLocker.lock();
 	size_t res = incomingPackets.size();
 	incomingLocker.unlock();
 	return res;
 }
-kge2D::tcp::Packet kge2D::tcp::Socket::next()
+Packet Socket::next()
 {
 	incomingLocker.lock();
 	Packet res = incomingPackets[0];
@@ -131,7 +139,7 @@ kge2D::tcp::Packet kge2D::tcp::Socket::next()
 	return res;
 }
 
-void kge2D::tcp::Socket::accept(boost::asio::ip::tcp::acceptor& acceptor)
+void Socket::accept(boost::asio::ip::tcp::acceptor& acceptor)
 {
 	close();
 	if (socket == nullptr)
@@ -141,7 +149,7 @@ void kge2D::tcp::Socket::accept(boost::asio::ip::tcp::acceptor& acceptor)
 	acceptor.accept(*socket);
 	start();
 }
-void kge2D::tcp::Socket::connectV4(std::string ip, std::string port)
+void Socket::connectV4(std::string ip, std::string port)
 {
 	close();
 	if (socket == nullptr)
@@ -153,7 +161,7 @@ void kge2D::tcp::Socket::connectV4(std::string ip, std::string port)
 	boost::asio::connect(*socket, endpoints);
 	start();
 }
-void kge2D::tcp::Socket::connectV6(std::string ip, std::string port)
+void Socket::connectV6(std::string ip, std::string port)
 {
 	close();
 	if (socket == nullptr)
@@ -166,11 +174,9 @@ void kge2D::tcp::Socket::connectV6(std::string ip, std::string port)
 	start();
 }
 
-void kge2D::tcp::Socket::send(kge2D::Buffer buffer)
+void Socket::send(Buffer buffer)
 {
-	size_designator outgoingSize = buffer.size();
 	internalLocker.lock();
-	socket->send(boost::asio::buffer(&outgoingSize, sizeof(outgoingSize)));
 	socket->send(boost::asio::buffer(buffer.data(), buffer.size()));
 	internalLocker.unlock();
 }

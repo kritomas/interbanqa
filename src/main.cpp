@@ -1,9 +1,9 @@
 #include <iostream>
-#include "kge2D/networking/connection.hpp"
+#include "networking/connection.hpp"
 
 int main(int argc, char* argv[])
 {
-	kge2D::tcp::Connection connection;
+	Connection connection;
 	int port = std::stoi(argv[1]);
 	connection.hostV4(port);
 	std::cout << "Running on: " << port << std::endl;
@@ -13,11 +13,11 @@ int main(int argc, char* argv[])
 	{
 		while (connection.pending() > 0)
 		{
-			kge2D::tcp::Packet packet = connection.next();
+			Packet packet = connection.next();
 
 			std::cout << "Incoming: " << packet.data() << std::endl;
 
-			if (packet.data() == "exit\r")
+			if (packet.data() == "exit")
 			{
 				connection.send("Server shutting down\r\n", packet.socket());
 				running = false;

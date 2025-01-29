@@ -27,29 +27,29 @@
  *	Source code: https://gitlab.com/kritomas/kritos-game-engine-2d
  */
 
-#include "kge2D/networking/acceptor.hpp"
+#include "networking/acceptor.hpp"
 #include <thread>
 
-void acceptorV4Thread(kge2D::tcp::Acceptor* acceptor)
+void acceptorV4Thread(Acceptor* acceptor)
 {
 	acceptor->hostV4Thread();
 }
-void acceptorV6Thread(kge2D::tcp::Acceptor* acceptor)
+void acceptorV6Thread(Acceptor* acceptor)
 {
 	acceptor->hostV6Thread();
 }
 
-kge2D::tcp::Acceptor::Acceptor() : acceptor(ioContext)
+Acceptor::Acceptor() : acceptor(ioContext)
 {
 
 }
 
-kge2D::tcp::Acceptor::~Acceptor()
+Acceptor::~Acceptor()
 {
 	close();
 }
 
-void kge2D::tcp::Acceptor::close()
+void Acceptor::close()
 {
 	accepting = false;
 	internalLocker.lock();
@@ -69,12 +69,12 @@ void kge2D::tcp::Acceptor::close()
 	_port = 0;
 }
 
-int kge2D::tcp::Acceptor::port() const
+int Acceptor::port() const
 {
 	return _port;
 }
 
-void kge2D::tcp::Acceptor::update()
+void Acceptor::update()
 {
 	acceptorLocker.lock();
 	for (auto it = sockets.begin(); it != sockets.end();)
@@ -97,13 +97,13 @@ void kge2D::tcp::Acceptor::update()
 	acceptorLocker.unlock();
 }
 
-size_t kge2D::tcp::Acceptor::pending()
+size_t Acceptor::pending()
 {
 	update();
 	size_t res = incomingPackets.size();
 	return res;
 }
-kge2D::tcp::Packet kge2D::tcp::Acceptor::next()
+Packet Acceptor::next()
 {
 	update();
 	Packet res = incomingPackets[0];
@@ -111,7 +111,7 @@ kge2D::tcp::Packet kge2D::tcp::Acceptor::next()
 	return res;
 }
 
-void kge2D::tcp::Acceptor::hostV4Thread()
+void Acceptor::hostV4Thread()
 {
 	while (accepting)
 	{
@@ -147,7 +147,7 @@ void kge2D::tcp::Acceptor::hostV4Thread()
 		}
 	}
 }
-void kge2D::tcp::Acceptor::hostV6Thread()
+void Acceptor::hostV6Thread()
 {
 	while (accepting)
 	{
@@ -184,19 +184,20 @@ void kge2D::tcp::Acceptor::hostV6Thread()
 	}
 }
 
-void kge2D::tcp::Acceptor::hostV4(int port)
+void Acceptor::hostV4(int port)
 {
 	close();
 	_port = port;
 	accepting = true;
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v4(), _port);
 	acceptor.open(endpoint.protocol());
+	acceptor.set_option(boost::asio::socket_base::reuse_address(true));
 	acceptor.bind(endpoint);
 	acceptor.listen();
 	acceptor.non_blocking(true);
 	acceptorThread = std::thread(acceptorV4Thread, this);
 }
-void kge2D::tcp::Acceptor::hostV6(int port)
+void Acceptor::hostV6(int port)
 {
 	close();
 	_port = port;

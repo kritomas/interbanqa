@@ -27,32 +27,41 @@
  *	Source code: https://gitlab.com/kritomas/kritos-game-engine-2d
  */
 
-#ifndef KGE2D_NETWORKING_PACKET_HPP
-#define KGE2D_NETWORKING_PACKET_HPP
+#ifndef NETWORKING_CONNECTION_HPP
+#define NETWORKING_CONNECTION_HPP
 
-#include "boost/asio.hpp"
+#include "networking/acceptor.hpp"
+#include "networking/socket.hpp"
 
-namespace kge2D
+/**
+ * A class for handling TCP network connections.
+ */
+class Connection
 {
-	typedef std::string Buffer;
+private:
+	std::shared_ptr<Socket> socket;
+	std::shared_ptr<Acceptor> acceptor;
 
-	namespace tcp
-	{
-		class Packet
-		{
-		private:
-			Buffer packetData;
-			std::shared_ptr<boost::asio::ip::tcp::socket> _socket;
+public:
+	~Connection();
 
-		public:
-			Packet();
-			Packet(const void* data, size_t size, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
-			Packet(const Buffer& buffer, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+	void close();
 
-			Buffer data() const;
-			std::shared_ptr<boost::asio::ip::tcp::socket> socket() const;
-		};
-	}
-}
+	/**
+	 * @return The amount of pending received packets, waiting for processing.
+	 */
+	size_t pending();
+	/**
+	 * @return The next packet to be processed, which is REMOVED FROM THE QUEUE.
+	 */
+	Packet next();
 
+	void hostV4(int port);
+	void hostV6(int port);
+	void connectV4(std::string ip, std::string port);
+	void connectV6(std::string ip, std::string port);
+
+	void send(Buffer buffer, std::shared_ptr<boost::asio::ip::tcp::socket> socket);
+	void send(Buffer buffer);
+};
 #endif
