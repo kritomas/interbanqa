@@ -1,11 +1,14 @@
 #include <iostream>
 #include "networking/connection.hpp"
 #include "stringops.hpp"
+#include "config.hpp"
 
 int main(int argc, char* argv[])
 {
+	initConfig();
+
 	Connection connection;
-	int port = std::stoi(argv[1]);
+	int port = config::PORT;
 	connection.hostV4(port);
 	std::cout << "Running on: " << port << std::endl;
 

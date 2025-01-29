@@ -2,3 +2,4 @@ Makefile
 compile_commands.json
 interbanqa
 .cache
+config.json
