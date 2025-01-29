@@ -84,7 +84,7 @@ void Acceptor::update()
 		{
 			while (s->pending() > 0)
 			{
-				incomingPackets.push_back(s->next());
+				incomingPackets.emplace_back(s->next());
 			}
 
 			++it;
@@ -132,7 +132,7 @@ void Acceptor::hostV4Thread()
 				}
 				internalLocker.unlock();
 				acceptorLocker.lock();
-				sockets.push_back(acceptedSocket);
+				sockets.emplace_back(acceptedSocket);
 				acceptorLocker.unlock();
 			}
 			else
@@ -168,7 +168,7 @@ void Acceptor::hostV6Thread()
 				}
 				internalLocker.unlock();
 				acceptorLocker.lock();
-				sockets.push_back(acceptedSocket);
+				sockets.emplace_back(acceptedSocket);
 				acceptorLocker.unlock();
 			}
 			else

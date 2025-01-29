@@ -31,14 +31,6 @@
 #include <string>
 #include <thread>
 
-std::string trim(const std::string& str)
-{
-	size_t first = str.find_first_not_of(" \t\n\r\f\v");
-	if (first == std::string::npos) return "";
-	size_t last = str.find_last_not_of(" \t\n\r\f\v");
-	return str.substr(first, (last - first + 1));
-}
-
 namespace tcp
 {
 	void socketReceiveThread(Socket* socket)
@@ -93,9 +85,9 @@ void Socket::receive()
 				}
 				internalLocker.unlock();
 
-				Packet incomingPacket(trim(receiveBuffer), socket);
+				Packet incomingPacket(receiveBuffer, socket);
 				incomingLocker.lock();
-				incomingPackets.push_back(incomingPacket);
+				incomingPackets.emplace_back(incomingPacket);
 				incomingLocker.unlock();
 			}
 			else
