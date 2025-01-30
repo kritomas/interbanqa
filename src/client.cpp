@@ -15,25 +15,36 @@ void Client::respond(const std::string& message)
 	socket->send(message + "\r\n");
 }
 
+std::string actuallyForwardRequest(const std::string& cmd, std::string address, int port)
+{
+	Connection connection;
+	connection.connectV4(address, std::to_string(port));
+	connection.send(cmd + "\r\n");
+	while (connection.pending() <= 0)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+	Packet response = connection.next();
+	std::string answer = reassembeCommand(parseCommand(response.data()));
+	runtime_log.log("Received '" + answer + "' from " + address + ", port " + std::to_string(port), LOG_INFO);
+	return answer;
+}
+
 std::string Client::forwardRequest(const std::vector<std::string>& arguments, std::string address)
 {
 	std::string cmd = reassembeCommand(arguments);
 	runtime_log.log("Forwarding request '" + cmd + "' to " + address, LOG_WARNING);
+	std::vector<std::future<std::string>> requests;
+	requests.reserve(MAX_PORT - MIN_PORT + 1);
 	for (int port = MIN_PORT; port <= MAX_PORT; ++port)
+	{
+		requests.emplace_back(std::async(std::launch::async, actuallyForwardRequest, cmd, address, port));
+	}
+	for (auto& r : requests)
 	{
 		try
 		{
-			Connection connection;
-			connection.connectV4(address, std::to_string(port));
-			connection.send(cmd + "\r\n");
-			while (connection.pending() <= 0)
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(10));
-			}
-			Packet response = connection.next();
-			std::string answer = reassembeCommand(parseCommand(response.data()));
-			runtime_log.log("Received '" + answer + "' from " + address + ", port " + std::to_string(port), LOG_INFO);
-			return answer;
+			return r.get();
 		}
 		catch (const boost::wrapexcept<boost::system::system_error>& error)
 		{
