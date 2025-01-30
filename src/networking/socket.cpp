@@ -31,6 +31,7 @@
 #include <string>
 #include <thread>
 #include "client.hpp"
+#include <iostream>
 
 void socketReceiveThread(Socket* socket)
 {
@@ -109,10 +110,20 @@ void Socket::receive()
 		}
 		catch (const boost::wrapexcept<boost::system::system_error>& error)
 		{
-			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			// Silently ignore
+			switch (error.code().value())
+			{
+				case boost::asio::error::would_block:
+					std::this_thread::sleep_for(std::chrono::milliseconds(1));
+					break;
+				case boost::asio::error::eof:
+					receiving = false;
+					break;
+				default:
+					throw;
+			}
 		}
 	}
+	std::cout << "closing" << std::endl;
 }
 
 void Socket::start()
