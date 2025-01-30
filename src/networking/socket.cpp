@@ -123,7 +123,6 @@ void Socket::receive()
 			}
 		}
 	}
-	std::cout << "closing" << std::endl;
 }
 
 void Socket::start()

@@ -13,6 +13,19 @@ std::vector<std::string> parseCommand(const std::string& command)
 	}
 	return arguments;
 }
+std::string reassembeCommand(const std::vector<std::string>& arguments)
+{
+	if (arguments.size() <= 0)
+	{
+		return "";
+	}
+	std::string cmd = arguments[0];
+	for (int index = 1; index < arguments.size(); ++index)
+	{
+		cmd += " " + arguments[index];
+	}
+	return cmd;
+}
 
 std::vector<std::string> splitString(const std::string& string, const std::string& with)
 {

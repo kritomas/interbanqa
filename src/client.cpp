@@ -1,14 +1,50 @@
 #include "client.hpp"
+#include <thread>
+#include "networking/connection.hpp"
 #include "networking/socket.hpp"
 #include "log.hpp"
 #include "database/account.hpp"
 #include "config.hpp"
 #include "stringops.hpp"
 
+const int MIN_PORT = 65525, MAX_PORT = 65535;
+
 void Client::respond(const std::string& message)
 {
 	runtime_log.log("Response to " + socket->raw()->remote_endpoint().address().to_string() + ": " + message, LOG_INFO);
 	socket->send(message + "\r\n");
+}
+
+std::string Client::forwardRequest(const std::vector<std::string>& arguments, std::string address)
+{
+	std::string cmd = reassembeCommand(arguments);
+	runtime_log.log("Forwarding request '" + cmd + "' to " + address, LOG_WARNING);
+	for (int port = MIN_PORT; port <= MAX_PORT; ++port)
+	{
+		try
+		{
+			Connection connection;
+			connection.connectV4(address, std::to_string(port));
+			connection.send(cmd);
+			while (connection.pending() <= 0)
+			{
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+			Packet response = connection.next();
+			return reassembeCommand(parseCommand(response.data()));
+		}
+		catch (const boost::wrapexcept<boost::system::system_error>& error)
+		{
+			switch (error.code().value())
+			{
+				case boost::asio::error::host_unreachable:
+					break;
+				default:
+					throw;
+			}
+		}
+	}
+	throw std::runtime_error("Bank not found");
 }
 
 std::string Client::bankCode(const std::vector<std::string>& arguments)
@@ -40,7 +76,7 @@ std::string Client::accountDeposit(const std::vector<std::string>& arguments)
 	}
 	else
 	{
-		throw std::runtime_error("Not implemented"); // TODO
+		return forwardRequest(arguments, raw_addr[1]);
 	}
 }
 std::string Client::accountWithdrawal(const std::vector<std::string>& arguments)
@@ -63,7 +99,7 @@ std::string Client::accountWithdrawal(const std::vector<std::string>& arguments)
 	}
 	else
 	{
-		throw std::runtime_error("Not implemented"); // TODO
+		return forwardRequest(arguments, raw_addr[1]);
 	}
 }
 std::string Client::accountBalance(const std::vector<std::string>& arguments)
@@ -85,7 +121,7 @@ std::string Client::accountBalance(const std::vector<std::string>& arguments)
 	}
 	else
 	{
-		throw std::runtime_error("Not implemented"); // TODO
+		return forwardRequest(arguments, raw_addr[1]);
 	}
 }
 std::string Client::accountRemove(const std::vector<std::string>& arguments)
@@ -107,7 +143,7 @@ std::string Client::accountRemove(const std::vector<std::string>& arguments)
 	}
 	else
 	{
-		throw std::runtime_error("Not implemented"); // TODO
+		return forwardRequest(arguments, raw_addr[1]);
 	}
 }
 std::string Client::bankTotalAmount(const std::vector<std::string>& arguments)
@@ -145,11 +181,7 @@ void Client::run()
 			auto socket = packet.socket();
 			std::vector<std::string> arguments = parseCommand(packet.data());
 			if (arguments.size() <= 0) continue;
-			std::string cmdToLog = arguments[0];
-			for (int index = 1; index < arguments.size(); ++index)
-			{
-				cmdToLog += " " + arguments[index];
-			}
+			std::string cmdToLog = reassembeCommand(arguments);
 			runtime_log.log("Request from " + socket->remote_endpoint().address().to_string() + ": " + cmdToLog, LOG_INFO);
 			try
 			{
