@@ -22,6 +22,9 @@ public:
 	long long int balance();
 	void deposit(long long int amount);
 	void withdraw(long long int amount);
+
+	static long long int count();
+	static long long int funds();
 };
 
 #endif

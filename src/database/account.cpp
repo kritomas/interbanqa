@@ -97,3 +97,18 @@ void Account::withdraw(long long int amount)
 	}
 	save();
 }
+
+long long int Account::count()
+{
+	auto singleton = DBSingleton::instance();
+	long long int res;
+	*singleton->db << "select * from Account_Total" >> res;
+	return res;
+}
+long long int Account::funds()
+{
+	auto singleton = DBSingleton::instance();
+	long long int res;
+	*singleton->db << "select * from Balance_Total" >> res;
+	return res;
+}

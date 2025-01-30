@@ -1,3 +1,4 @@
+#include "database/singleton.hpp"
 #include "server.hpp"
 #include "config.hpp"
 #include <string>
@@ -6,6 +7,8 @@
 int main(int argc, char* argv[])
 {
 	initConfig();
+
+	DBSingleton::instance();
 
 	Server server;
 	server.start();

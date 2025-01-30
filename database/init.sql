@@ -11,7 +11,7 @@ create table Account
 insert into Account (id, is_dummy) values (9999, 1); -- Dummy insert
 
 create view Balance_Total as
-	select sum(balance) from Account where is_dummy = 0;
+	select ifnull(sum(balance), 0) from Account where is_dummy = 0;
 
 create view Account_Total as
 	select count(*) from Account where is_dummy = 0;

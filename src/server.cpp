@@ -114,6 +114,14 @@ void Server::accountRemove(const std::vector<std::string>& arguments, std::share
 		throw std::runtime_error("Not implemented"); // TODO
 	}
 }
+void Server::bankTotalAmount(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+{
+	respond("BA " + std::to_string(Account::funds()), socket);
+}
+void Server::bankNumberOfClients(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+{
+	respond("BN " + std::to_string(Account::count()), socket);
+}
 
 void Server::run()
 {
@@ -152,6 +160,8 @@ Server::Server()
 	commands["AW"] = &Server::accountWithdrawal;
 	commands["AB"] = &Server::accountBalance;
 	commands["AR"] = &Server::accountRemove;
+	commands["BA"] = &Server::bankTotalAmount;
+	commands["BN"] = &Server::bankNumberOfClients;
 }
 
 Server::~Server()
