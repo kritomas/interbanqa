@@ -3,6 +3,7 @@
 #include <iostream>
 #include "config.hpp"
 #include "stringops.hpp"
+#include "database/account.hpp"
 
 void runThread(Server* server)
 {
@@ -18,6 +19,57 @@ void Server::bankCode(const std::vector<std::string>& arguments, std::shared_ptr
 {
 	respond("BC " + config::ADDRESS, socket);
 }
+void Server::accountCreate(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+{
+	Account account = Account::create();
+	respond("AC " + std::to_string(account.number()) + "/" + config::ADDRESS, socket);
+}
+void Server::accountDeposit(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+{
+	if (arguments.size() < 3)
+	{
+		throw std::runtime_error("Not enough arguments");
+	}
+	auto raw_addr = splitString(arguments[1], "/");
+	if (raw_addr.size() < 2)
+	{
+		throw std::runtime_error("Illegal address");
+	}
+	if (raw_addr[1] == config::ADDRESS)
+	{
+		int number = std::stoi(raw_addr[0]);
+		Account account = Account::get(number);
+		account.deposit(std::stoll(arguments[2]));
+		respond("AD", socket);
+	}
+	else
+	{
+		throw std::runtime_error("Not implemented"); // TODO
+	}
+}
+void Server::accountWithdrawal(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+{
+	if (arguments.size() < 3)
+	{
+		throw std::runtime_error("Not enough arguments");
+	}
+	auto raw_addr = splitString(arguments[1], "/");
+	if (raw_addr.size() < 2)
+	{
+		throw std::runtime_error("Illegal address");
+	}
+	if (raw_addr[1] == config::ADDRESS)
+	{
+		int number = std::stoi(raw_addr[0]);
+		Account account = Account::get(number);
+		account.withdraw(std::stoll(arguments[2]));
+		respond("AW", socket);
+	}
+	else
+	{
+		throw std::runtime_error("Not implemented"); // TODO
+	}
+}
 
 void Server::run()
 {
@@ -29,13 +81,20 @@ void Server::run()
 			auto socket = packet.socket();
 			std::vector<std::string> arguments = parseCommand(packet.data());
 			if (arguments.size() <= 0) continue;
-			if (commands.count(arguments[0]))
+			try
 			{
-				(this->*commands[arguments[0]])(arguments, socket);
+				if (commands.count(arguments[0]))
+				{
+					(this->*commands[arguments[0]])(arguments, socket);
+				}
+				else
+				{
+					throw std::runtime_error("Command not found");
+				}
 			}
-			else
+			catch (const std::exception& e)
 			{
-				respond("ER Command not found", socket);
+				respond((std::string)"ER " + e.what(), socket);
 			}
 		}
 	}
@@ -44,6 +103,9 @@ void Server::run()
 Server::Server()
 {
 	commands["BC"] = &Server::bankCode;
+	commands["AC"] = &Server::accountCreate;
+	commands["AD"] = &Server::accountDeposit;
+	commands["AW"] = &Server::accountWithdrawal;
 }
 
 Server::~Server()
