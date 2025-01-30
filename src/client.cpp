@@ -7,8 +7,6 @@
 #include "config.hpp"
 #include "stringops.hpp"
 
-#include <iostream>
-
 const int MIN_PORT = 65525, MAX_PORT = 65535;
 
 void Client::respond(const std::string& message)
@@ -27,7 +25,7 @@ std::string Client::forwardRequest(const std::vector<std::string>& arguments, st
 		{
 			Connection connection;
 			connection.connectV4(address, std::to_string(port));
-			connection.send(cmd);
+			connection.send(cmd + "\r\n");
 			while (connection.pending() <= 0)
 			{
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
@@ -43,7 +41,6 @@ std::string Client::forwardRequest(const std::vector<std::string>& arguments, st
 			{
 				case boost::asio::error::host_unreachable:
 				case boost::asio::error::connection_refused:
-					std::cout << "r" << port << std::endl;
 					break;
 				default:
 					throw;
@@ -195,7 +192,6 @@ void Client::run()
 				{
 					std::future<std::string> awaited_response = std::async(std::launch::async, commands[arguments[0]], arguments);
 					auto status = awaited_response.wait_for(std::chrono::milliseconds((int)(1000*config::TIMEOUT)));
-					std::cout << (int)status << std::endl;
 					if (status == std::future_status::timeout)
 					{
 						throw std::runtime_error("Timed out");

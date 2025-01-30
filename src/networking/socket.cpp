@@ -125,13 +125,16 @@ void Socket::receive()
 	}
 }
 
-void Socket::start()
+void Socket::start(bool dispatchClient)
 {
 	socket->non_blocking(true);
 	receiving = true;
 	receiveThread = std::thread(socketReceiveThread, this);
-	client = std::make_unique<Client>(shared_from_this());
-	handlerThread = std::thread(clientHandlerThread, client.get());
+	if (dispatchClient)
+	{
+		client = std::make_unique<Client>(shared_from_this());
+		handlerThread = std::thread(clientHandlerThread, client.get());
+	}
 }
 
 bool Socket::isOpen() const
@@ -163,7 +166,7 @@ void Socket::accept(boost::asio::ip::tcp::acceptor& acceptor)
 		socket.reset(new boost::asio::ip::tcp::socket(ioContext));
 	}
 	acceptor.accept(*socket);
-	start();
+	start(true);
 }
 void Socket::connectV4(std::string ip, std::string port)
 {

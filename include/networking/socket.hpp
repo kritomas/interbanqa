@@ -69,7 +69,7 @@ public:
 	/**
 	 * Starts the receiving thread.
 	 */
-	void start();
+	void start(bool dispatchClient = false);
 
 	bool isOpen() const;
 
