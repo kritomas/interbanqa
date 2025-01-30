@@ -8,6 +8,9 @@ private:
 	long long int _balance;
 
 	static void checkNumber(int number);
+	static bool has(int number);
+
+	Account();
 
 public:
 	static Account create();

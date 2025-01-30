@@ -11,6 +11,17 @@ void Account::checkNumber(int number)
 		throw std::runtime_error("Account number out of range");
 	}
 }
+bool Account::has(int number)
+{
+	auto singleton = DBSingleton::instance();
+	int count;
+	*singleton->db << "select count(*) from Account where id = ?" << number >> count;
+	return count > 0;
+}
+
+Account::Account()
+{
+}
 
 Account Account::create()
 {
@@ -32,6 +43,10 @@ void Account::remove(int number)
 Account Account::get(int number)
 {
 	checkNumber(number);
+	if (!has(number))
+	{
+		throw std::runtime_error("Account doesn't exist");
+	}
 	auto singleton = DBSingleton::instance();
 	Account res;
 	*singleton->db << "select id, balance from Account where id = ?" << number >> [&](int number, long long int balance)
