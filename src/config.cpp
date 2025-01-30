@@ -6,11 +6,13 @@
 const char CONFIG_PATH[] = "config.json";
 const char CONFIG_PORT_NAME[] = "port";
 const char CONFIG_ADDRESS_NAME[] = "address";
+const char CONFIG_TIMEOUT_NAME[] = "timeout";
 
 namespace config
 {
 	int PORT;
 	std::string ADDRESS;
+	double TIMEOUT;
 }
 
 void initConfig()
@@ -39,6 +41,10 @@ void initConfig()
 	{
 		throw std::runtime_error("Config entry address not found");
 	}
+	if (!raw.contains(CONFIG_TIMEOUT_NAME))
+	{
+		throw std::runtime_error("Config entry timeout not found");
+	}
 
 	if (!raw[CONFIG_PORT_NAME].is_number_unsigned())
 	{
@@ -48,7 +54,12 @@ void initConfig()
 	{
 		throw std::runtime_error("Config entry address must be a string");
 	}
+	if (!raw[CONFIG_TIMEOUT_NAME].is_number())
+	{
+		throw std::runtime_error("Config entry timeout must be a number");
+	}
 
 	config::PORT = raw[CONFIG_PORT_NAME];
 	config::ADDRESS = raw[CONFIG_ADDRESS_NAME];
+	config::TIMEOUT = raw[CONFIG_TIMEOUT_NAME];
 }

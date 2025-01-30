@@ -17,16 +17,16 @@ void Server::respond(const std::string& message, std::shared_ptr<boost::asio::ip
 	connection.send(message + "\r\n", socket);
 }
 
-void Server::bankCode(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+std::string Server::bankCode(const std::vector<std::string>& arguments)
 {
-	respond("BC " + config::ADDRESS, socket);
+	return "BC " + config::ADDRESS;
 }
-void Server::accountCreate(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+std::string Server::accountCreate(const std::vector<std::string>& arguments)
 {
 	Account account = Account::create();
-	respond("AC " + std::to_string(account.number()) + "/" + config::ADDRESS, socket);
+	return "AC " + std::to_string(account.number()) + "/" + config::ADDRESS;
 }
-void Server::accountDeposit(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+std::string Server::accountDeposit(const std::vector<std::string>& arguments)
 {
 	if (arguments.size() < 3)
 	{
@@ -42,14 +42,14 @@ void Server::accountDeposit(const std::vector<std::string>& arguments, std::shar
 		int number = std::stoi(raw_addr[0]);
 		Account account = Account::get(number);
 		account.deposit(std::stoll(arguments[2]));
-		respond("AD", socket);
+		return "AD";
 	}
 	else
 	{
 		throw std::runtime_error("Not implemented"); // TODO
 	}
 }
-void Server::accountWithdrawal(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+std::string Server::accountWithdrawal(const std::vector<std::string>& arguments)
 {
 	if (arguments.size() < 3)
 	{
@@ -65,14 +65,14 @@ void Server::accountWithdrawal(const std::vector<std::string>& arguments, std::s
 		int number = std::stoi(raw_addr[0]);
 		Account account = Account::get(number);
 		account.withdraw(std::stoll(arguments[2]));
-		respond("AW", socket);
+		return "AW";
 	}
 	else
 	{
 		throw std::runtime_error("Not implemented"); // TODO
 	}
 }
-void Server::accountBalance(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+std::string Server::accountBalance(const std::vector<std::string>& arguments)
 {
 	if (arguments.size() < 2)
 	{
@@ -87,14 +87,14 @@ void Server::accountBalance(const std::vector<std::string>& arguments, std::shar
 	{
 		int number = std::stoi(raw_addr[0]);
 		Account account = Account::get(number);
-		respond("AB " + std::to_string(account.balance()), socket);
+		return "AB " + std::to_string(account.balance());
 	}
 	else
 	{
 		throw std::runtime_error("Not implemented"); // TODO
 	}
 }
-void Server::accountRemove(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+std::string Server::accountRemove(const std::vector<std::string>& arguments)
 {
 	if (arguments.size() < 2)
 	{
@@ -109,20 +109,20 @@ void Server::accountRemove(const std::vector<std::string>& arguments, std::share
 	{
 		int number = std::stoi(raw_addr[0]);
 		Account::remove(number);
-		respond("AR", socket);
+		return "AR";
 	}
 	else
 	{
 		throw std::runtime_error("Not implemented"); // TODO
 	}
 }
-void Server::bankTotalAmount(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+std::string Server::bankTotalAmount(const std::vector<std::string>& arguments)
 {
-	respond("BA " + std::to_string(Account::funds()), socket);
+	return "BA " + std::to_string(Account::funds());
 }
-void Server::bankNumberOfClients(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+std::string Server::bankNumberOfClients(const std::vector<std::string>& arguments)
 {
-	respond("BN " + std::to_string(Account::count()), socket);
+	return "BN " + std::to_string(Account::count());
 }
 
 void Server::run()
@@ -145,7 +145,12 @@ void Server::run()
 			{
 				if (commands.count(arguments[0]))
 				{
-					(this->*commands[arguments[0]])(arguments, socket);
+					std::future<std::string> awaited_response = std::async(std::launch::async, commands[arguments[0]], this, arguments);
+					if (awaited_response.wait_for(std::chrono::milliseconds((int)(1000*config::TIMEOUT))) == std::future_status::timeout)
+					{
+						throw std::runtime_error("Timed out");
+					}
+					respond(awaited_response.get(), socket);
 				}
 				else
 				{

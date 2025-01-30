@@ -12,16 +12,16 @@ private:
 
 	void respond(const std::string& message, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
 
-	void bankCode(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
-	void accountCreate(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
-	void accountDeposit(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
-	void accountWithdrawal(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
-	void accountBalance(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
-	void accountRemove(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
-	void bankTotalAmount(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
-	void bankNumberOfClients(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
+	std::string bankCode(const std::vector<std::string>& arguments);
+	std::string accountCreate(const std::vector<std::string>& arguments);
+	std::string accountDeposit(const std::vector<std::string>& arguments);
+	std::string accountWithdrawal(const std::vector<std::string>& arguments);
+	std::string accountBalance(const std::vector<std::string>& arguments);
+	std::string accountRemove(const std::vector<std::string>& arguments);
+	std::string bankTotalAmount(const std::vector<std::string>& arguments);
+	std::string bankNumberOfClients(const std::vector<std::string>& arguments);
 
-	std::unordered_map<std::string, void (Server::*)(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)> commands;
+	std::unordered_map<std::string, std::string (Server::*)(const std::vector<std::string>& arguments)> commands;
 
 	void run();
 
