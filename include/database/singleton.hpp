@@ -11,12 +11,12 @@ private:
 
 	void reset();
 
-	std::shared_ptr<DBSingleton> _instance;
+	static std::shared_ptr<DBSingleton> _instance;
 
 public:
 	std::unique_ptr<sqlite::database> db;
 
-	std::shared_ptr<DBSingleton> instance();
+	static std::shared_ptr<DBSingleton> instance();
 };
 
 #endif

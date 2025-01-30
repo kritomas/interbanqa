@@ -4,3 +4,4 @@ interbanqa
 .cache
 config.json
 *.o
+*.db
