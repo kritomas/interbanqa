@@ -32,22 +32,25 @@
 
 #include "boost/asio.hpp"
 #include "networking/packet.hpp"
+#include "client.hpp"
 
 /**
  * An individual TCP socket. Used by Connection.
  */
-class Socket
+class Socket : public std::enable_shared_from_this<Socket>
 {
 private:
 	boost::asio::io_context ioContext;
 
 	std::shared_ptr<boost::asio::ip::tcp::socket> socket;
+	std::unique_ptr<Client> client;
 
 	std::vector<Packet> incomingPackets;
 	std::mutex incomingLocker;
 	std::mutex internalLocker;
 
 	std::thread receiveThread;
+	std::thread handlerThread;
 
 	bool receiving = false;
 
@@ -55,6 +58,8 @@ public:
 	~Socket();
 
 	void close();
+
+	std::shared_ptr<boost::asio::ip::tcp::socket> raw() const;
 
 	/**
 	 * Starts the receiving loop. This should be called from a separate thread.

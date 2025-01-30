@@ -17,15 +17,5 @@ int main(int argc, char* argv[])
 	Server server;
 	server.start();
 
-	std::string cmd;
-	while (server.running)
-	{
-		std::getline(std::cin, cmd);
-
-		if (cmd == "exit") server.running = false;
-
-		if (std::cin.eof()) server.running = false;
-	}
-
 	return 0;
 }

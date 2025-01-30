@@ -15,6 +15,7 @@ bool Account::has(int number)
 {
 	auto singleton = DBSingleton::instance();
 	int count;
+	std::lock_guard<std::mutex> lock(singleton->db_mutex);
 	*singleton->db << "select count(*) from Account where id = ?" << number >> count;
 	return count > 0;
 }
@@ -26,7 +27,11 @@ Account::Account()
 Account Account::create()
 {
 	auto singleton = DBSingleton::instance();
-	*singleton->db << "insert into Account default values;";
+	if (true)
+	{
+		std::lock_guard<std::mutex> lock(singleton->db_mutex);
+		*singleton->db << "insert into Account default values;";
+	}
 	return get(singleton->db->last_insert_rowid());
 }
 void Account::remove(int number)
@@ -38,6 +43,7 @@ void Account::remove(int number)
 	{
 		throw std::runtime_error("Cannot remove account with value");
 	}
+	std::lock_guard<std::mutex> lock(singleton->db_mutex);
 	*singleton->db << "delete from Account where id = ?;" << number;
 }
 Account Account::get(int number)
@@ -49,6 +55,7 @@ Account Account::get(int number)
 	}
 	auto singleton = DBSingleton::instance();
 	Account res;
+	std::lock_guard<std::mutex> lock(singleton->db_mutex);
 	*singleton->db << "select id, balance from Account where id = ?" << number >> [&](int number, long long int balance)
 	{
 		res._number = number;
@@ -59,6 +66,7 @@ Account Account::get(int number)
 void Account::save()
 {
 	auto singleton = DBSingleton::instance();
+	std::lock_guard<std::mutex> lock(singleton->db_mutex);
 	*singleton->db << "update Account set balance = ? where id = ?" << _balance << _number;
 }
 
@@ -102,6 +110,7 @@ long long int Account::count()
 {
 	auto singleton = DBSingleton::instance();
 	long long int res;
+	std::lock_guard<std::mutex> lock(singleton->db_mutex);
 	*singleton->db << "select * from Account_Total" >> res;
 	return res;
 }
@@ -109,6 +118,7 @@ long long int Account::funds()
 {
 	auto singleton = DBSingleton::instance();
 	long long int res;
+	std::lock_guard<std::mutex> lock(singleton->db_mutex);
 	*singleton->db << "select * from Balance_Total" >> res;
 	return res;
 }

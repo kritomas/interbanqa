@@ -30,10 +30,15 @@
 #include "networking/socket.hpp"
 #include <string>
 #include <thread>
+#include "client.hpp"
 
 void socketReceiveThread(Socket* socket)
 {
 	socket->receive();
+}
+void clientHandlerThread(Client* client)
+{
+	client->run();
 }
 
 Socket::~Socket()
@@ -55,7 +60,17 @@ void Socket::close()
 		receiveThread.join();
 	}
 	internalLocker.unlock();
+	if (receiveThread.joinable())
+	{
+		handlerThread.join();
+	}
 }
+
+std::shared_ptr<boost::asio::ip::tcp::socket> Socket::raw() const
+{
+	return socket;
+}
+
 void Socket::receive()
 {
 	Buffer receiveBuffer;
@@ -105,6 +120,8 @@ void Socket::start()
 	socket->non_blocking(true);
 	receiving = true;
 	receiveThread = std::thread(socketReceiveThread, this);
+	client = std::make_unique<Client>(shared_from_this());
+	handlerThread = std::thread(clientHandlerThread, client.get());
 }
 
 bool Socket::isOpen() const
