@@ -1,4 +1,3 @@
-#include "database/singleton.hpp"
 #include "server.hpp"
 #include "config.hpp"
 #include <string>
@@ -10,8 +9,6 @@ int main(int argc, char* argv[])
 
 	Server server;
 	server.start();
-
-	std::cout << DBSingleton::instance() << std::endl;
 
 	std::string cmd;
 	while (server.running)
