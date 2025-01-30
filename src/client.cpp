@@ -7,6 +7,8 @@
 #include "config.hpp"
 #include "stringops.hpp"
 
+#include <iostream>
+
 const int MIN_PORT = 65525, MAX_PORT = 65535;
 
 void Client::respond(const std::string& message)
@@ -31,13 +33,17 @@ std::string Client::forwardRequest(const std::vector<std::string>& arguments, st
 				std::this_thread::sleep_for(std::chrono::milliseconds(10));
 			}
 			Packet response = connection.next();
-			return reassembeCommand(parseCommand(response.data()));
+			std::string answer = reassembeCommand(parseCommand(response.data()));
+			runtime_log.log("Received '" + answer + "' from " + address + ", port " + std::to_string(port), LOG_INFO);
+			return answer;
 		}
 		catch (const boost::wrapexcept<boost::system::system_error>& error)
 		{
 			switch (error.code().value())
 			{
 				case boost::asio::error::host_unreachable:
+				case boost::asio::error::connection_refused:
+					std::cout << "r" << port << std::endl;
 					break;
 				default:
 					throw;
@@ -188,7 +194,9 @@ void Client::run()
 				if (commands.count(arguments[0]))
 				{
 					std::future<std::string> awaited_response = std::async(std::launch::async, commands[arguments[0]], arguments);
-					if (awaited_response.wait_for(std::chrono::milliseconds((int)(1000*config::TIMEOUT))) == std::future_status::timeout)
+					auto status = awaited_response.wait_for(std::chrono::milliseconds((int)(1000*config::TIMEOUT)));
+					std::cout << (int)status << std::endl;
+					if (status == std::future_status::timeout)
 					{
 						throw std::runtime_error("Timed out");
 					}
