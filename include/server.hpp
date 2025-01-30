@@ -16,6 +16,8 @@ private:
 	void accountCreate(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
 	void accountDeposit(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
 	void accountWithdrawal(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
+	void accountBalance(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
+	void accountRemove(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket);
 
 	std::unordered_map<std::string, void (Server::*)(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)> commands;
 

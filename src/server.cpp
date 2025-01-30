@@ -70,6 +70,50 @@ void Server::accountWithdrawal(const std::vector<std::string>& arguments, std::s
 		throw std::runtime_error("Not implemented"); // TODO
 	}
 }
+void Server::accountBalance(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+{
+	if (arguments.size() < 2)
+	{
+		throw std::runtime_error("Not enough arguments");
+	}
+	auto raw_addr = splitString(arguments[1], "/");
+	if (raw_addr.size() < 2)
+	{
+		throw std::runtime_error("Illegal address");
+	}
+	if (raw_addr[1] == config::ADDRESS)
+	{
+		int number = std::stoi(raw_addr[0]);
+		Account account = Account::get(number);
+		respond("AB " + std::to_string(account.balance()), socket);
+	}
+	else
+	{
+		throw std::runtime_error("Not implemented"); // TODO
+	}
+}
+void Server::accountRemove(const std::vector<std::string>& arguments, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+{
+	if (arguments.size() < 2)
+	{
+		throw std::runtime_error("Not enough arguments");
+	}
+	auto raw_addr = splitString(arguments[1], "/");
+	if (raw_addr.size() < 2)
+	{
+		throw std::runtime_error("Illegal address");
+	}
+	if (raw_addr[1] == config::ADDRESS)
+	{
+		int number = std::stoi(raw_addr[0]);
+		Account::remove(number);
+		respond("AR", socket);
+	}
+	else
+	{
+		throw std::runtime_error("Not implemented"); // TODO
+	}
+}
 
 void Server::run()
 {
@@ -106,6 +150,8 @@ Server::Server()
 	commands["AC"] = &Server::accountCreate;
 	commands["AD"] = &Server::accountDeposit;
 	commands["AW"] = &Server::accountWithdrawal;
+	commands["AB"] = &Server::accountBalance;
+	commands["AR"] = &Server::accountRemove;
 }
 
 Server::~Server()
