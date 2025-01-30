@@ -13,6 +13,7 @@ void runThread(Server* server)
 
 void Server::respond(const std::string& message, std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
+	runtime_log.log("Response to " + socket->remote_endpoint().address().to_string() + ": " + message, LOG_INFO);
 	connection.send(message + "\r\n", socket);
 }
 
@@ -134,6 +135,12 @@ void Server::run()
 			auto socket = packet.socket();
 			std::vector<std::string> arguments = parseCommand(packet.data());
 			if (arguments.size() <= 0) continue;
+			std::string cmdToLog = arguments[0];
+			for (int index = 1; index < arguments.size(); ++index)
+			{
+				cmdToLog += " " + arguments[index];
+			}
+			runtime_log.log("Request from " + socket->remote_endpoint().address().to_string() + ": " + cmdToLog, LOG_INFO);
 			try
 			{
 				if (commands.count(arguments[0]))
@@ -147,6 +154,7 @@ void Server::run()
 			}
 			catch (const std::exception& e)
 			{
+				runtime_log.log("When handling request for " + socket->remote_endpoint().address().to_string() + ": " + e.what(), LOG_ERROR);
 				respond((std::string)"ER " + e.what(), socket);
 			}
 		}
@@ -179,7 +187,6 @@ void Server::start()
 	connection.host(config::ADDRESS, config::PORT);
 	std::cout << "Server hosted at " << config::ADDRESS << " port " << config::PORT << std::endl;
 
+	runtime_log.log("Interbanqa server listening at " + config::ADDRESS + ", port " + std::to_string(config::PORT), LOG_INFO);
 	thread = std::thread(runThread, this);
-
-	runtime_log.log("Interbanqa server started at " + config::ADDRESS + ", port " + std::to_string(config::PORT), LOG_INFO);
 }
