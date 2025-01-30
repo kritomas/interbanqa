@@ -2,6 +2,7 @@
 #include <thread>
 #include <iostream>
 #include "config.hpp"
+#include "log.hpp"
 #include "stringops.hpp"
 #include "database/account.hpp"
 
@@ -169,6 +170,7 @@ Server::~Server()
 	running = false;
 	thread.join();
 	std::cout << "Server terminating" << std::endl;
+	runtime_log.log("Server terminating", LOG_INFO);
 }
 
 void Server::start()
@@ -178,4 +180,6 @@ void Server::start()
 	std::cout << "Server hosted at " << config::ADDRESS << " port " << config::PORT << std::endl;
 
 	thread = std::thread(runThread, this);
+
+	runtime_log.log("Interbanqa server started at " + config::ADDRESS + ", port " + std::to_string(config::PORT), LOG_INFO);
 }

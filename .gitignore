@@ -5,3 +5,4 @@ interbanqa
 config.json
 *.o
 *.db
+*.log
