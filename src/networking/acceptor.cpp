@@ -164,6 +164,7 @@ void Acceptor::hostV6(int port)
 	accepting = true;
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::tcp::v6(), _port);
 	acceptor.open(endpoint.protocol());
+	acceptor.set_option(boost::asio::socket_base::reuse_address(true));
 	acceptor.bind(endpoint);
 	acceptor.listen();
 	acceptor.non_blocking(true);
@@ -174,8 +175,9 @@ void Acceptor::host(const std::string& address, int port)
 	close();
 	_port = port;
 	accepting = true;
-	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(address), _port);
+	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::make_address(address), _port);
 	acceptor.open(endpoint.protocol());
+	acceptor.set_option(boost::asio::socket_base::reuse_address(true));
 	acceptor.bind(endpoint);
 	acceptor.listen();
 	acceptor.non_blocking(true);

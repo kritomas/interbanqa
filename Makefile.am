@@ -40,4 +40,8 @@ dist_interbanqa_SOURCES = ./include/client.hpp \
 
 AM_CPPFLAGS = -I./include -I./external/sqlite-amalgamation -I./external/nlohmann -I./external/sqlite_modern_cpp/hdr
 
+if WINDOWS
+  LIBS += -lws2_32
+endif
+
 # dist_doc_DATA = README.md LICENSE.txt
