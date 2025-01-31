@@ -2,7 +2,21 @@ Makefile
 compile_commands.json
 interbanqa
 .cache
+*.cache
 config.json
 *.o
 *.db
 *.log
+*~
+*.status
+.deps
+.dirstamp
+
+# The following ones are to be unignored.
+aclocal.m4
+compile
+configure
+depcomp
+install-sh
+Makefile.in
+missing
