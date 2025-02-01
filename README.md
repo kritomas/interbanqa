@@ -42,3 +42,7 @@ If `interbanqa` isn't present, see [Building instructions](#building-linux).
 +	Connect to the node with any TCP client (e.g. PuTTY or `telnet`).
 
 If `interbanqa.exe` isn't present, see [Building instructions](#building-windows).
+
+# Sources
+
+See `sources.md`.
