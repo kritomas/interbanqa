@@ -10,6 +10,9 @@ namespace config
 	extern double TIMEOUT;
 }
 
+/**
+ * This must be executed before any server is started.
+ */
 void initConfig();
 
 #endif

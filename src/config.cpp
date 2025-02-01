@@ -10,9 +10,9 @@ const char CONFIG_TIMEOUT_NAME[] = "timeout";
 
 namespace config
 {
-	int PORT;
-	std::string ADDRESS;
-	double TIMEOUT;
+	int PORT = 0;
+	std::string ADDRESS = "0.0.0.0";
+	double TIMEOUT = 5;
 }
 
 void initConfig()

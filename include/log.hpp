@@ -45,9 +45,7 @@ private:
 
 public:
 	Log() {}
-	/**
-	 * Removal of copy constructor.
-	 */
+
 	Log(const Log& other) = delete;
 
 	~Log();
