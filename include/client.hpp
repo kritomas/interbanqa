@@ -25,6 +25,7 @@ private:
 	static std::string accountRemove(const std::vector<std::string>& arguments);
 	static std::string bankTotalAmount(const std::vector<std::string>& arguments);
 	static std::string bankNumberOfClients(const std::vector<std::string>& arguments);
+	static std::string robberyPlan(const std::vector<std::string>& arguments);
 
 	static std::unordered_map<std::string, std::string(*)(const std::vector<std::string>& arguments)> commands;
 

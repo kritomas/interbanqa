@@ -168,6 +168,12 @@ std::string Client::bankNumberOfClients(const std::vector<std::string>& argument
 {
 	return "BN " + std::to_string(Account::count());
 }
+std::string Client::robberyPlan(const std::vector<std::string>& arguments)
+{
+	return "RP";
+	// TODO
+}
+
 
 std::unordered_map<std::string, std::string(*)(const std::vector<std::string>& arguments)> Client::commands;
 
@@ -183,6 +189,7 @@ Client::Client(std::shared_ptr<Socket> socket)
 	commands["AR"] = &Client::accountRemove;
 	commands["BA"] = &Client::bankTotalAmount;
 	commands["BN"] = &Client::bankNumberOfClients;
+	//commands["RP"] = &Client::robberyPlan;
 }
 
 void Client::run()

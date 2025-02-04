@@ -2,7 +2,8 @@ AUTOMAKE_OPTIONS = foreign subdir-objects
 bin_PROGRAMS = interbanqa
 SUBIDRS = src
 
-interbanqa_SOURCES = ./src/client.cpp \
+interbanqa_SOURCES = ./src/bank.cpp \
+./src/client.cpp \
 ./src/config.cpp \
 ./src/log.cpp \
 ./src/main.cpp \
@@ -16,7 +17,8 @@ interbanqa_SOURCES = ./src/client.cpp \
 ./src/networking/socket.cpp \
 ./external/sqlite-amalgamation/sqlite3.c
 
-dist_interbanqa_SOURCES = ./include/client.hpp \
+dist_interbanqa_SOURCES = ./include/bank.hpp \
+./include/client.hpp \
 ./include/config.hpp \
 ./include/log.hpp \
 ./include/server.hpp \
@@ -44,4 +46,4 @@ if WINDOWS
   LIBS += -lws2_32
 endif
 
-# dist_doc_DATA = README.md LICENSE.txt
+dist_doc_DATA = README.md sources.md
