@@ -169,18 +169,49 @@ std::string Client::bankNumberOfClients(const std::vector<std::string>& argument
 {
 	return "BN " + std::to_string(Account::count());
 }
-#include <iostream>
 std::string Client::robberyPlan(const std::vector<std::string>& arguments)
 {
-	std::vector<Bank> banks = Bank::listBanks();
+	if (arguments.size() < 2)
+	{
+		throw std::runtime_error("Not enough arguments");
+	}
+	long long int target = std::stoll(arguments[1]);
 
+	std::multiset<Bank> banks = Bank::listBanks();
+
+	long long int total = 0;
 	for (auto& b : banks)
 	{
-		std::cout << b.balancePerClient() << std::endl;
+		total += b.balance;
+	}
+	if (total < target)
+	{
+		throw std::runtime_error("Not enough finances in network");
 	}
 
-	return "RP";
-	// TODO
+	std::set<std::string> to_rob;
+	int clients = 0;
+	total = 0;
+	for (auto it = banks.rbegin(); it != banks.rend() && total < target; ++it)
+	{
+		total += it->balance;
+		clients += it->clients;
+		to_rob.emplace(it->address);
+	}
+
+	std::string bank_addrs = "";
+	bool do_comma = false;
+	for (auto& a : to_rob)
+	{
+		if (do_comma)
+		{
+			bank_addrs += ", ";
+		}
+		bank_addrs += a;
+		do_comma = true;
+	}
+
+	return "RP for " + std::to_string(total) + "$ (" + std::to_string(clients) + " clients): " + bank_addrs;
 }
 
 

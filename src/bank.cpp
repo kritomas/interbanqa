@@ -16,9 +16,15 @@ double Bank::balancePerClient() const
 	return balance / (double)clients;
 }
 
+bool Bank::operator<(const Bank& other) const
+{
+	return balancePerClient() < other.balancePerClient();
+}
+
 Bank fetchBank(std::string address)
 {
 	Bank res;
+	res.address = address;
 	std::vector<std::string> response = parseCommand(Client::forwardRequest(parseCommand("BA"), address));
 	if (response.size() <= 1) throw std::runtime_error("Invalid response");
 	if (response[0] == "ER") throw std::runtime_error("Remote returned error");
@@ -31,7 +37,7 @@ Bank fetchBank(std::string address)
 	return res;
 }
 
-std::vector<Bank> Bank::listBanks()
+std::multiset<Bank> Bank::listBanks()
 {
 	boost::asio::ip::address_v4 addr = boost::asio::ip::make_address_v4(config::ADDRESS);
 	boost::asio::ip::network_v4 network = boost::asio::ip::network_v4(addr, config::PREFIX_LENGTH);
@@ -51,13 +57,12 @@ std::vector<Bank> Bank::listBanks()
 		requests.emplace_back(std::async(std::launch::async, fetchBank, current_ip.to_string()));
 	}
 
-	std::vector<Bank> res;
-	res.reserve(requests.size());
+	std::multiset<Bank> res;
 	for (auto& r : requests)
 	{
 		try
 		{
-			res.emplace_back(r.get());
+			res.emplace(r.get());
 		}
 		catch (const std::exception& e)
 		{
