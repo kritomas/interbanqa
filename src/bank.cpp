@@ -1,5 +1,6 @@
 #include "bank.hpp"
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <future>
@@ -58,11 +59,15 @@ std::multiset<Bank> Bank::listBanks()
 	}
 
 	std::multiset<Bank> res;
+	const std::chrono::time_point start = std::chrono::system_clock::now();
+	const std::chrono::time_point end = start + std::chrono::milliseconds((int)(150 * config::TIMEOUT));
 	for (auto& r : requests)
 	{
 		try
 		{
-			res.emplace(r.get());
+			auto status = r.wait_until(end);
+			if (status == std::future_status::timeout) throw std::runtime_error("Timeout");
+			else res.emplace(r.get());
 		}
 		catch (const std::exception& e)
 		{

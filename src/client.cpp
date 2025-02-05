@@ -41,11 +41,15 @@ std::string Client::forwardRequest(const std::vector<std::string>& arguments, st
 	{
 		requests.emplace_back(std::async(std::launch::async, actuallyForwardRequest, cmd, address, port));
 	}
+	const std::chrono::time_point start = std::chrono::system_clock::now();
+	const std::chrono::time_point end = start + std::chrono::milliseconds((int)(100 * config::TIMEOUT));
 	for (auto& r : requests)
 	{
 		try
 		{
-			return r.get();
+			auto status = r.wait_until(end);
+			if (status == std::future_status::timeout) throw std::runtime_error("Timeout");
+			else return r.get();
 		}
 		catch (const boost::wrapexcept<boost::system::system_error>& error)
 		{
