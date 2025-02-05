@@ -9,7 +9,7 @@ In project root, create `config.json` with the following format:
 ```json
 {
 	"address": "[IPv4 Address Interbanqa will listen on]",
-	"netbits": [IPv4 Netmask size of the address above (between 0-32)],
+	"prefix": [IPv4 network prefix of the address above (between 0-32)],
 	"port": [Port number Interbanqa will listen on (between 65525-65535)],
 	"timeout": [Timeout for requests, in seconds]
 }

@@ -1,6 +1,8 @@
 #ifndef BANK_HPP
 #define BANK_HPP
 
+#include <vector>
+
 class Bank
 {
 public:
@@ -9,7 +11,7 @@ public:
 
 	double balancePerClient() const;
 
-	static void listBanks();
+	static std::vector<Bank> listBanks();
 };
 
 #endif

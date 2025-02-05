@@ -7,14 +7,14 @@
 const char CONFIG_PATH[] = "config.json";
 const char CONFIG_PORT_NAME[] = "port";
 const char CONFIG_ADDRESS_NAME[] = "address";
-const char CONFIG_NETBITS_NAME[] = "netbits";
+const char CONFIG_PREFIX_LENGTH_NAME[] = "prefix";
 const char CONFIG_TIMEOUT_NAME[] = "timeout";
 
 namespace config
 {
 	int PORT = 0;
 	std::string ADDRESS = "0.0.0.0";
-	int NETBITS = 24;
+	int PREFIX_LENGTH = 24;
 	double TIMEOUT = 5;
 }
 
@@ -44,9 +44,9 @@ void initConfig()
 	{
 		throw std::runtime_error("Config entry address not found");
 	}
-	if (!raw.contains(CONFIG_NETBITS_NAME))
+	if (!raw.contains(CONFIG_PREFIX_LENGTH_NAME))
 	{
-		throw std::runtime_error("Config entry netbits not found");
+		throw std::runtime_error("Config entry prefix not found");
 	}
 	if (!raw.contains(CONFIG_TIMEOUT_NAME))
 	{
@@ -66,13 +66,13 @@ void initConfig()
 	{
 		throw std::runtime_error("Config entry address must be an IPv4 address");
 	}
-	if (!raw[CONFIG_NETBITS_NAME].is_number_unsigned())
+	if (!raw[CONFIG_PREFIX_LENGTH_NAME].is_number_unsigned())
 	{
-		throw std::runtime_error("Config entry netbits must be an unsigned integer");
+		throw std::runtime_error("Config entry prefix must be an unsigned integer");
 	}
-	if (raw[CONFIG_NETBITS_NAME] < 0 || raw[CONFIG_NETBITS_NAME] > 32)
+	if (raw[CONFIG_PREFIX_LENGTH_NAME] < 0 || raw[CONFIG_PREFIX_LENGTH_NAME] > 32)
 	{
-		throw std::runtime_error("Config entry netbits must be 0-32");
+		throw std::runtime_error("Config entry prefix must be 0-32");
 	}
 	if (!raw[CONFIG_TIMEOUT_NAME].is_number())
 	{
@@ -81,6 +81,6 @@ void initConfig()
 
 	config::PORT = raw[CONFIG_PORT_NAME];
 	config::ADDRESS = raw[CONFIG_ADDRESS_NAME];
-	config::NETBITS = raw[CONFIG_NETBITS_NAME];
+	config::PREFIX_LENGTH = raw[CONFIG_PREFIX_LENGTH_NAME];
 	config::TIMEOUT = raw[CONFIG_TIMEOUT_NAME];
 }

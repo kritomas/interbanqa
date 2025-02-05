@@ -15,8 +15,6 @@ private:
 
 	void respond(const std::string& message);
 
-	static std::string forwardRequest(const std::vector<std::string>& arguments, std::string address);
-
 	static std::string bankCode(const std::vector<std::string>& arguments);
 	static std::string accountCreate(const std::vector<std::string>& arguments);
 	static std::string accountDeposit(const std::vector<std::string>& arguments);
@@ -30,6 +28,8 @@ private:
 	static std::unordered_map<std::string, std::string(*)(const std::vector<std::string>& arguments)> commands;
 
 public:
+	static std::string forwardRequest(const std::vector<std::string>& arguments, std::string address);
+
 	Client(std::shared_ptr<Socket> socket);
 
 	void run();

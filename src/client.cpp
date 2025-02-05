@@ -1,5 +1,6 @@
 #include "client.hpp"
 #include <thread>
+#include "bank.hpp"
 #include "networking/connection.hpp"
 #include "networking/socket.hpp"
 #include "log.hpp"
@@ -168,8 +169,16 @@ std::string Client::bankNumberOfClients(const std::vector<std::string>& argument
 {
 	return "BN " + std::to_string(Account::count());
 }
+#include <iostream>
 std::string Client::robberyPlan(const std::vector<std::string>& arguments)
 {
+	std::vector<Bank> banks = Bank::listBanks();
+
+	for (auto& b : banks)
+	{
+		std::cout << b.balancePerClient() << std::endl;
+	}
+
 	return "RP";
 	// TODO
 }
@@ -189,7 +198,7 @@ Client::Client(std::shared_ptr<Socket> socket)
 	commands["AR"] = &Client::accountRemove;
 	commands["BA"] = &Client::bankTotalAmount;
 	commands["BN"] = &Client::bankNumberOfClients;
-	//commands["RP"] = &Client::robberyPlan;
+	commands["RP"] = &Client::robberyPlan;
 }
 
 void Client::run()

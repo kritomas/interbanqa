@@ -7,7 +7,7 @@ namespace config
 {
 	extern int PORT;
 	extern std::string ADDRESS;
-	extern int NETBITS;
+	extern int PREFIX_LENGTH;
 	extern double TIMEOUT;
 }
 
