@@ -132,7 +132,9 @@ void Log::log(std::string textToLog, LogMessageTypes type)
 	switch (logTarget) // -Wswitch ok - Rest of them addressed above.
 	{
 		case LOGTARGET_FILE:
+			mutex.lock();
 			outputFile << logged << std::endl;
+			mutex.unlock();
 			break;
 		case LOGTARGET_STDOUT:
 			std::cout << logged << std::endl;

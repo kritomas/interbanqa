@@ -5,6 +5,8 @@
 
 namespace config
 {
+	extern int MIN_PORT;
+	extern int MAX_PORT;
 	extern int PORT;
 	extern std::string ADDRESS;
 	extern int PREFIX_LENGTH;

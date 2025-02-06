@@ -5,6 +5,8 @@
 #include "json.hpp"
 
 const char CONFIG_PATH[] = "config.json";
+const char CONFIG_MIN_PORT_NAME[] = "min_port";
+const char CONFIG_MAX_PORT_NAME[] = "max_port";
 const char CONFIG_PORT_NAME[] = "port";
 const char CONFIG_ADDRESS_NAME[] = "address";
 const char CONFIG_PREFIX_LENGTH_NAME[] = "prefix";
@@ -12,6 +14,8 @@ const char CONFIG_TIMEOUT_NAME[] = "timeout";
 
 namespace config
 {
+	int MIN_PORT = 0;
+	int MAX_PORT = 0;
 	int PORT = 0;
 	std::string ADDRESS = "0.0.0.0";
 	int PREFIX_LENGTH = 24;
@@ -36,6 +40,14 @@ void initConfig()
 		throw std::runtime_error("Invalid JSON");
 	}
 
+	if (!raw.contains(CONFIG_MIN_PORT_NAME))
+	{
+		throw std::runtime_error("Config entry min_port not found");
+	}
+	if (!raw.contains(CONFIG_MAX_PORT_NAME))
+	{
+		throw std::runtime_error("Config entry max_port not found");
+	}
 	if (!raw.contains(CONFIG_PORT_NAME))
 	{
 		throw std::runtime_error("Config entry port not found");
@@ -53,9 +65,21 @@ void initConfig()
 		throw std::runtime_error("Config entry timeout not found");
 	}
 
+	if (!raw[CONFIG_MIN_PORT_NAME].is_number_unsigned())
+	{
+		throw std::runtime_error("Config entry min_port must be an unsigned integer");
+	}
+	if (!raw[CONFIG_MAX_PORT_NAME].is_number_unsigned())
+	{
+		throw std::runtime_error("Config entry max_port must be an unsigned integer");
+	}
 	if (!raw[CONFIG_PORT_NAME].is_number_unsigned())
 	{
 		throw std::runtime_error("Config entry port must be an unsigned integer");
+	}
+	if (raw[CONFIG_PORT_NAME] < raw[CONFIG_MIN_PORT_NAME] || raw[CONFIG_PORT_NAME] > raw[CONFIG_MAX_PORT_NAME])
+	{
+		throw std::runtime_error("port must be between min_port and max_port");
 	}
 	if (!raw[CONFIG_ADDRESS_NAME].is_string())
 	{
@@ -79,6 +103,8 @@ void initConfig()
 		throw std::runtime_error("Config entry timeout must be a number");
 	}
 
+	config::MIN_PORT = raw[CONFIG_MIN_PORT_NAME];
+	config::MAX_PORT = raw[CONFIG_MAX_PORT_NAME];
 	config::PORT = raw[CONFIG_PORT_NAME];
 	config::ADDRESS = raw[CONFIG_ADDRESS_NAME];
 	config::PREFIX_LENGTH = raw[CONFIG_PREFIX_LENGTH_NAME];

@@ -10,7 +10,9 @@ In project root, create `config.json` with the following format:
 {
 	"address": "[IPv4 Address Interbanqa will listen on]",
 	"prefix": [IPv4 network prefix of the address above (between 0-32)],
-	"port": [Port number Interbanqa will listen on (between 65525-65535)],
+	"min_port": [Minimum port Interbanqa will search],
+	"max_port": [Maximum port Interbanqa will search],
+	"port": [Port number Interbanqa will listen on (between min_port-max_port)],
 	"timeout": [Timeout for requests, in seconds]
 }
 ```

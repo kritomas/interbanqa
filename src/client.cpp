@@ -8,8 +8,6 @@
 #include "config.hpp"
 #include "stringops.hpp"
 
-const int MIN_PORT = 65525, MAX_PORT = 65535;
-
 void Client::respond(const std::string& message)
 {
 	runtime_log.log("Response to " + socket->raw()->remote_endpoint().address().to_string() + ": " + message, LOG_INFO);
@@ -36,13 +34,13 @@ std::string Client::forwardRequest(const std::vector<std::string>& arguments, st
 	std::string cmd = reassembeCommand(arguments);
 	runtime_log.log("Forwarding request '" + cmd + "' to " + address, LOG_WARNING);
 	std::vector<std::future<std::string>> requests;
-	requests.reserve(MAX_PORT - MIN_PORT + 1);
-	for (int port = MIN_PORT; port <= MAX_PORT; ++port)
+	requests.reserve(config::MAX_PORT - config::MIN_PORT + 1);
+	for (int port = config::MIN_PORT; port <= config::MAX_PORT; ++port)
 	{
 		requests.emplace_back(std::async(std::launch::async, actuallyForwardRequest, cmd, address, port));
 	}
 	const std::chrono::time_point start = std::chrono::system_clock::now();
-	const std::chrono::time_point end = start + std::chrono::milliseconds((int)(100 * config::TIMEOUT));
+	const std::chrono::time_point end = start + std::chrono::milliseconds((int)(1000 * config::TIMEOUT));
 	for (auto& r : requests)
 	{
 		try

@@ -31,6 +31,7 @@
 #define LOG_HPP
 
 #include <fstream>
+#include <mutex>
 
 enum LogMessageTypes { LOG_INFO = 0, LOG_WARNING = 1, LOG_ERROR = 2 };
 extern const std::string logTypeStrings[3];
@@ -42,6 +43,7 @@ private:
 	std::fstream outputFile;
 	std::string logFilePath;
 	LogTargets logTarget = LOGTARGET_UNSPECIFIED;
+	std::mutex mutex;
 
 public:
 	Log() {}
