@@ -231,7 +231,7 @@ Client::Client(std::shared_ptr<Socket> socket)
 	commands["AR"] = &Client::accountRemove;
 	commands["BA"] = &Client::bankTotalAmount;
 	commands["BN"] = &Client::bankNumberOfClients;
-	commands["RP"] = &Client::robberyPlan;
+	//commands["RP"] = &Client::robberyPlan; // BORKED
 }
 
 void Client::run()
