@@ -6,6 +6,7 @@ interbanqa
 config.json
 *.o
 *.exe
+*.dll
 *.db
 *.log
 *~

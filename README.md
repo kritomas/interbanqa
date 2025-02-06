@@ -1,6 +1,6 @@
 # Interbanqa
 
-A P2P Banking system node.
+A silly P2P Banking system node thing I made for school.
 
 # Configuration
 
@@ -17,19 +17,6 @@ In project root, create `config.json` with the following format:
 }
 ```
 
-# Building
-
-## Linux <a id='building-linux'></a>
-
-+	Install dependencies: [Boost](https://www.boost.org/), A C compiler, A C++ compiler (I recommend using the package manager to do so).
-+	Run `./configure`, `make`.
-
-## Windows <a id='building-windows'></a>
-
-+	Install [MSYS2](https://www.msys2.org/).
-+	Open MSYS2 (I recommend using the MINGW64 variant).
-+	Follow the [Linux steps](#building-linux) above.
-
 # Usage
 
 ## Linux
@@ -45,6 +32,19 @@ If `interbanqa` isn't present, see [Building instructions](#building-linux).
 +	Connect to the node with any TCP client (e.g. PuTTY or `telnet`).
 
 If `interbanqa.exe` isn't present, see [Building instructions](#building-windows).
+
+# Building
+
+## Linux <a id='building-linux'></a>
+
++	Install dependencies: [Boost](https://www.boost.org/), A C compiler, A C++ compiler (I recommend using the package manager to do so).
++	Run `./configure`, `make`.
+
+## Windows <a id='building-windows'></a>
+
++	Install [MSYS2](https://www.msys2.org/).
++	Open MSYS2 (I recommend using the MINGW64 variant).
++	Follow the [Linux steps](#building-linux) above.
 
 # Sources
 
