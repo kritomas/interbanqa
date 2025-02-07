@@ -107,9 +107,10 @@ am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(docdir)"
 PROGRAMS = $(bin_PROGRAMS)
 am__dirstamp = $(am__leading_dot)dirstamp
 am_interbanqa_OBJECTS = ./src/bank.$(OBJEXT) ./src/client.$(OBJEXT) \
-	./src/config.$(OBJEXT) ./src/log.$(OBJEXT) \
-	./src/main.$(OBJEXT) ./src/server.$(OBJEXT) \
-	./src/stringops.$(OBJEXT) ./src/database/account.$(OBJEXT) \
+	./src/config.$(OBJEXT) ./src/kritase64.$(OBJEXT) \
+	./src/log.$(OBJEXT) ./src/main.$(OBJEXT) \
+	./src/server.$(OBJEXT) ./src/stringops.$(OBJEXT) \
+	./src/database/account.$(OBJEXT) \
 	./src/database/singleton.$(OBJEXT) \
 	./src/networking/acceptor.$(OBJEXT) \
 	./src/networking/connection.$(OBJEXT) \
@@ -138,9 +139,9 @@ am__maybe_remake_depfiles = depfiles
 am__depfiles_remade =  \
 	./external/sqlite-amalgamation/$(DEPDIR)/sqlite3.Po \
 	./src/$(DEPDIR)/bank.Po ./src/$(DEPDIR)/client.Po \
-	./src/$(DEPDIR)/config.Po ./src/$(DEPDIR)/log.Po \
-	./src/$(DEPDIR)/main.Po ./src/$(DEPDIR)/server.Po \
-	./src/$(DEPDIR)/stringops.Po \
+	./src/$(DEPDIR)/config.Po ./src/$(DEPDIR)/kritase64.Po \
+	./src/$(DEPDIR)/log.Po ./src/$(DEPDIR)/main.Po \
+	./src/$(DEPDIR)/server.Po ./src/$(DEPDIR)/stringops.Po \
 	./src/database/$(DEPDIR)/account.Po \
 	./src/database/$(DEPDIR)/singleton.Po \
 	./src/networking/$(DEPDIR)/acceptor.Po \
@@ -352,6 +353,7 @@ SUBIDRS = src
 interbanqa_SOURCES = ./src/bank.cpp \
 ./src/client.cpp \
 ./src/config.cpp \
+./src/kritase64.cpp \
 ./src/log.cpp \
 ./src/main.cpp \
 ./src/server.cpp \
@@ -367,6 +369,7 @@ interbanqa_SOURCES = ./src/bank.cpp \
 dist_interbanqa_SOURCES = ./include/bank.hpp \
 ./include/client.hpp \
 ./include/config.hpp \
+./include/kritase64.hpp \
 ./include/log.hpp \
 ./include/server.hpp \
 ./include/stringops.hpp \
@@ -480,6 +483,8 @@ src/$(DEPDIR)/$(am__dirstamp):
 	src/$(DEPDIR)/$(am__dirstamp)
 ./src/config.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
+./src/kritase64.$(OBJEXT): src/$(am__dirstamp) \
+	src/$(DEPDIR)/$(am__dirstamp)
 ./src/log.$(OBJEXT): src/$(am__dirstamp) src/$(DEPDIR)/$(am__dirstamp)
 ./src/main.$(OBJEXT): src/$(am__dirstamp) \
 	src/$(DEPDIR)/$(am__dirstamp)
@@ -539,6 +544,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./src/$(DEPDIR)/bank.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./src/$(DEPDIR)/client.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./src/$(DEPDIR)/config.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./src/$(DEPDIR)/kritase64.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./src/$(DEPDIR)/log.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./src/$(DEPDIR)/main.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./src/$(DEPDIR)/server.Po@am__quote@ # am--include-marker
@@ -894,6 +900,7 @@ distclean: distclean-am
 	-rm -f ./src/$(DEPDIR)/bank.Po
 	-rm -f ./src/$(DEPDIR)/client.Po
 	-rm -f ./src/$(DEPDIR)/config.Po
+	-rm -f ./src/$(DEPDIR)/kritase64.Po
 	-rm -f ./src/$(DEPDIR)/log.Po
 	-rm -f ./src/$(DEPDIR)/main.Po
 	-rm -f ./src/$(DEPDIR)/server.Po
@@ -955,6 +962,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./src/$(DEPDIR)/bank.Po
 	-rm -f ./src/$(DEPDIR)/client.Po
 	-rm -f ./src/$(DEPDIR)/config.Po
+	-rm -f ./src/$(DEPDIR)/kritase64.Po
 	-rm -f ./src/$(DEPDIR)/log.Po
 	-rm -f ./src/$(DEPDIR)/main.Po
 	-rm -f ./src/$(DEPDIR)/server.Po

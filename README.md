@@ -49,3 +49,5 @@ If `interbanqa.exe` isn't present, see [Building instructions](#building-windows
 # Sources
 
 See `sources.md`.
+
+Source code: https://github.com/kritomas/interbanqa
