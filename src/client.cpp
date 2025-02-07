@@ -237,18 +237,19 @@ Client::Client(std::shared_ptr<Socket> socket)
 
 void Client::run()
 {
+	std::shared_ptr<boost::asio::ip::tcp::socket> bsocket;
 	while (socket->isOpen())
 	{
 		while (socket->pending() > 0)
 		{
-			Packet packet = socket->next();
-			auto socket = packet.socket();
-			std::vector<std::string> arguments = parseCommand(packet.data());
-			if (arguments.size() <= 0) continue;
-			std::string cmdToLog = reassembeCommand(arguments);
-			runtime_log.log("Request from " + socket->remote_endpoint().address().to_string() + ": " + cmdToLog, LOG_INFO);
 			try
 			{
+				Packet packet = socket->next();
+				bsocket = packet.socket();
+				std::vector<std::string> arguments = parseCommand(packet.data());
+				if (arguments.size() <= 0) continue;
+				std::string cmdToLog = reassembeCommand(arguments);
+				runtime_log.log("Request from " + bsocket->remote_endpoint().address().to_string() + ": " + cmdToLog, LOG_INFO);
 				if (commands.count(arguments[0]))
 				{
 					std::future<std::string> awaited_response = std::async(std::launch::async, commands[arguments[0]], arguments);
@@ -266,7 +267,7 @@ void Client::run()
 			}
 			catch (const std::exception& e)
 			{
-				runtime_log.log("When handling request for " + socket->remote_endpoint().address().to_string() + ": " + e.what(), LOG_ERROR);
+				runtime_log.log("When handling request"  + (bsocket != nullptr ? " for " + bsocket->remote_endpoint().address().to_string() : "") + ": " + e.what(), LOG_ERROR);
 				respond((std::string)"ER " + e.what());
 			}
 		}

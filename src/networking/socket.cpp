@@ -119,7 +119,8 @@ void Socket::receive()
 					receiving = false;
 					break;
 				default:
-					throw;
+					std::cout << error.what() << std::endl;
+					//throw;
 			}
 		}
 	}
