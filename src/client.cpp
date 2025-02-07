@@ -1,6 +1,7 @@
 #include "client.hpp"
 #include <thread>
 #include "bank.hpp"
+#include "exception.hpp"
 #include "networking/connection.hpp"
 #include "networking/socket.hpp"
 #include "log.hpp"
@@ -46,7 +47,7 @@ std::string Client::forwardRequest(const std::vector<std::string>& arguments, st
 		try
 		{
 			auto status = r.wait_until(end);
-			if (status == std::future_status::timeout) throw std::runtime_error("Timeout");
+			if (status == std::future_status::timeout) InterbanqaException("Timeout");
 			else return r.get();
 		}
 		catch (const boost::wrapexcept<boost::system::system_error>& error)
@@ -61,7 +62,7 @@ std::string Client::forwardRequest(const std::vector<std::string>& arguments, st
 			}
 		}
 	}
-	throw std::runtime_error("Bank not found");
+	throw InterbanqaException("Bank not found");
 }
 
 std::string Client::bankCode(const std::vector<std::string>& arguments)
@@ -77,12 +78,12 @@ std::string Client::accountDeposit(const std::vector<std::string>& arguments)
 {
 	if (arguments.size() < 3)
 	{
-		throw std::runtime_error("Not enough arguments");
+		throw InterbanqaException("Not enough arguments");
 	}
 	auto raw_addr = splitString(arguments[1], "/");
 	if (raw_addr.size() < 2)
 	{
-		throw std::runtime_error("Illegal address");
+		throw InterbanqaException("Illegal address");
 	}
 	if (raw_addr[1] == config::ADDRESS)
 	{
@@ -100,12 +101,12 @@ std::string Client::accountWithdrawal(const std::vector<std::string>& arguments)
 {
 	if (arguments.size() < 3)
 	{
-		throw std::runtime_error("Not enough arguments");
+		throw InterbanqaException("Not enough arguments");
 	}
 	auto raw_addr = splitString(arguments[1], "/");
 	if (raw_addr.size() < 2)
 	{
-		throw std::runtime_error("Illegal address");
+		throw InterbanqaException("Illegal address");
 	}
 	if (raw_addr[1] == config::ADDRESS)
 	{
@@ -123,12 +124,12 @@ std::string Client::accountBalance(const std::vector<std::string>& arguments)
 {
 	if (arguments.size() < 2)
 	{
-		throw std::runtime_error("Not enough arguments");
+		throw InterbanqaException("Not enough arguments");
 	}
 	auto raw_addr = splitString(arguments[1], "/");
 	if (raw_addr.size() < 2)
 	{
-		throw std::runtime_error("Illegal address");
+		throw InterbanqaException("Illegal address");
 	}
 	if (raw_addr[1] == config::ADDRESS)
 	{
@@ -145,12 +146,12 @@ std::string Client::accountRemove(const std::vector<std::string>& arguments)
 {
 	if (arguments.size() < 2)
 	{
-		throw std::runtime_error("Not enough arguments");
+		throw InterbanqaException("Not enough arguments");
 	}
 	auto raw_addr = splitString(arguments[1], "/");
 	if (raw_addr.size() < 2)
 	{
-		throw std::runtime_error("Illegal address");
+		throw InterbanqaException("Illegal address");
 	}
 	if (raw_addr[1] == config::ADDRESS)
 	{
@@ -175,7 +176,7 @@ std::string Client::robberyPlan(const std::vector<std::string>& arguments)
 {
 	if (arguments.size() < 2)
 	{
-		throw std::runtime_error("Not enough arguments");
+		throw InterbanqaException("Not enough arguments");
 	}
 	long long int target = std::stoll(arguments[1]);
 
@@ -188,7 +189,7 @@ std::string Client::robberyPlan(const std::vector<std::string>& arguments)
 	}
 	if (total < target)
 	{
-		throw std::runtime_error("Not enough finances in network");
+		throw InterbanqaException("Not enough finances in network");
 	}
 
 	std::set<std::string> to_rob;
@@ -254,13 +255,13 @@ void Client::run()
 					auto status = awaited_response.wait_for(std::chrono::milliseconds((int)(1000*config::TIMEOUT)));
 					if (status == std::future_status::timeout)
 					{
-						throw std::runtime_error("Timed out");
+						throw InterbanqaException("Timed out");
 					}
 					respond(awaited_response.get());
 				}
 				else
 				{
-					throw std::runtime_error("Command not found");
+					throw InterbanqaException("Command not found");
 				}
 			}
 			catch (const std::exception& e)

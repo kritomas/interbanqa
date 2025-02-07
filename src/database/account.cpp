@@ -1,6 +1,6 @@
 #include "database/account.hpp"
 #include "database/singleton.hpp"
-#include <stdexcept>
+#include "exception.hpp"
 
 const int MIN_NUMBER = 10000, MAX_NUMBER = 99999;
 
@@ -8,7 +8,7 @@ void Account::checkNumber(int number)
 {
 	if (number < MIN_NUMBER || number > MAX_NUMBER)
 	{
-		throw std::runtime_error("Account number out of range");
+		throw InterbanqaException("Account number out of range");
 	}
 }
 bool Account::has(int number)
@@ -41,7 +41,7 @@ void Account::remove(int number)
 	Account ac = get(number);
 	if (ac._balance > 0)
 	{
-		throw std::runtime_error("Cannot remove account with value");
+		throw InterbanqaException("Cannot remove account with value");
 	}
 	std::lock_guard<std::mutex> lock(singleton->db_mutex);
 	*singleton->db << "delete from Account where id = ?;" << number;
@@ -51,7 +51,7 @@ Account Account::get(int number)
 	checkNumber(number);
 	if (!has(number))
 	{
-		throw std::runtime_error("Account doesn't exist");
+		throw InterbanqaException("Account doesn't exist");
 	}
 	auto singleton = DBSingleton::instance();
 	Account res;
@@ -83,12 +83,12 @@ void Account::deposit(long long int amount)
 {
 	if (amount < 0)
 	{
-		throw std::runtime_error("Amount must not be negative");
+		throw InterbanqaException("Amount must not be negative");
 	}
 	_balance += amount;
 	if (_balance < 0)
 	{
-		throw std::runtime_error("Cannot deposit that much");
+		throw InterbanqaException("Cannot deposit that much");
 	}
 	save();
 }
@@ -96,12 +96,12 @@ void Account::withdraw(long long int amount)
 {
 	if (amount < 0)
 	{
-		throw std::runtime_error("Amount must not be negative");
+		throw InterbanqaException("Amount must not be negative");
 	}
 	_balance -= amount;
 	if (_balance < 0)
 	{
-		throw std::runtime_error("Cannot withdraw that much");
+		throw InterbanqaException("Cannot withdraw that much");
 	}
 	save();
 }

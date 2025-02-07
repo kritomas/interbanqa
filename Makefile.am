@@ -5,6 +5,7 @@ SUBIDRS = src
 interbanqa_SOURCES = ./src/bank.cpp \
 ./src/client.cpp \
 ./src/config.cpp \
+./src/exception.cpp \
 ./src/kritase64.cpp \
 ./src/log.cpp \
 ./src/main.cpp \
@@ -21,6 +22,7 @@ interbanqa_SOURCES = ./src/bank.cpp \
 dist_interbanqa_SOURCES = ./include/bank.hpp \
 ./include/client.hpp \
 ./include/config.hpp \
+./include/exception.hpp \
 ./include/kritase64.hpp \
 ./include/log.hpp \
 ./include/server.hpp \

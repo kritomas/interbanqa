@@ -28,6 +28,7 @@
  */
 
 #include "networking/connection.hpp"
+#include "exception.hpp"
 
 Connection::~Connection()
 {
@@ -71,7 +72,7 @@ Packet Connection::next()
 	{
 		return acceptor->next();
 	}
-	throw std::runtime_error("error");
+	throw InterbanqaException("error");
 }
 
 void Connection::hostV4(int port)

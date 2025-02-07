@@ -28,11 +28,10 @@
  */
 
 #include "log.hpp"
-#include "stringops.hpp"
-
 #include <ctime>
 #include <iostream>
-#include <stdexcept>
+#include "exception.hpp"
+#include "stringops.hpp"
 
 const std::string logTypeStrings[3] = { "INFO", "WARNING", "ERROR" };
 
@@ -91,7 +90,7 @@ void Log::start(const std::string& pathToLog)
 	outputFile.open(logFilePath, std::ios::out | std::ios::trunc);
 	if (!outputFile.is_open())
 	{
-		throw std::runtime_error("Couldn't open log file.");
+		throw InterbanqaException("Couldn't open log file.");
 	}
 	logTarget = LOGTARGET_FILE;
 }
@@ -116,7 +115,7 @@ void Log::log(std::string textToLog, LogMessageTypes type)
 	switch (logTarget) // -Wswitch ok - Rest of them addressed below.
 	{
 		case LOGTARGET_UNSPECIFIED:
-			throw std::runtime_error("Log not open.");
+			throw InterbanqaException("Log not open.");
 			break;
 	}
 	std::string logged = "[" + timestamp() + "] ";

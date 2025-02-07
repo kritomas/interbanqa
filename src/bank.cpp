@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <future>
 #include "config.hpp"
+#include "exception.hpp"
 #include "stringops.hpp"
 #include "networking/connection.hpp"
 
@@ -27,13 +28,13 @@ Bank fetchBank(std::string address)
 	Bank res;
 	res.address = address;
 	std::vector<std::string> response = parseCommand(Client::forwardRequest(parseCommand("BA"), address));
-	if (response.size() <= 1) throw std::runtime_error("Invalid response");
-	if (response[0] == "ER") throw std::runtime_error("Remote returned error");
+	if (response.size() <= 1) throw InterbanqaException("Invalid response");
+	if (response[0] == "ER") throw InterbanqaException("Remote returned error");
 	res.balance = std::stoll(response[1]);
 
 	response = parseCommand(Client::forwardRequest(parseCommand("BN"), address));
-	if (response.size() <= 1) throw std::runtime_error("Invalid response");
-	if (response[0] == "ER") throw std::runtime_error("Remote returned error");
+	if (response.size() <= 1) throw InterbanqaException("Invalid response");
+	if (response[0] == "ER") throw InterbanqaException("Remote returned error");
 	res.clients = std::stoi(response[1]);
 	return res;
 }
@@ -66,7 +67,7 @@ std::multiset<Bank> Bank::listBanks()
 		try
 		{
 			auto status = r.wait_until(end);
-			if (status == std::future_status::timeout) throw std::runtime_error("Timeout");
+			if (status == std::future_status::timeout) throw InterbanqaException("Timeout");
 			else res.emplace(r.get());
 		}
 		catch (const std::exception& e)
